@@ -17,40 +17,61 @@ features = ['Ax', 'Ay', 'Az', 'SV', 'Gx', 'Gy', 'Gz', 'Pitch', 'Roll', 'Yaw']
 # Shared container
 incoming_data = []
 
+latest_values = {
+    "ax": 0,
+    "ay": 0,
+    "az": 0,
+    "gx": 0,
+    "gy": 0,
+    "gz": 0,
+}
+
 # === MQTT CALLBACKS ===
 def on_connect(client, userdata, flags, rc):
     print("Connected to MQTT with result code", rc)
-    client.subscribe("fall/////")
+    client.subscribe("/v1.6/devices/esp32-uni159/ax/lv")
+    client.subscribe("/v1.6/devices/esp32-uni159/ay/lv")
+    client.subscribe("/v1.6/devices/esp32-uni159/az/lv")
+    client.subscribe("/v1.6/devices/esp32-uni159/gx/lv")
+    client.subscribe("/v1.6/devices/esp32-uni159/gy/lv")
+    client.subscribe("/v1.6/devices/esp32-uni159/gz/lv")
 
 def on_message(client, userdata, msg):
     try:
-        payload = json.loads(msg.payload.decode())
-        Ax = payload.get("Ax", 0)
-        Ay = payload.get("Ay", 0)
-        Az = payload.get("Az", 0)
-        Gx = payload.get("Gx", 0)
-        Gy = payload.get("Gy", 0)
-        Gz = payload.get("Gz", 0)
+        topic = msg.topic.split("/")[-2]
+        value = float(msg.payload.decode())
 
-        SV = sqrt(Ax**2 + Ay**2 + Az**2)
-        Pitch = degrees(atan2(Ax, sqrt(Ay**2 + Az**2)))
-        Roll = degrees(atan2(Ay, sqrt(Ax**2 + Az**2)))
-        Yaw = degrees(atan2(Az, sqrt(Ax**2 + Ay**2)))
+        if topic in latest_values:
+            latest_values[topic] = value
 
-        row = [Ax, Ay, Az, SV, Gx, Gy, Gz, Pitch, Roll, Yaw]
+        ax = latest_values["ax"]
+        ay = latest_values["ay"]
+        az = latest_values["az"]
+        gx = latest_values["gx"]
+        gy = latest_values["gy"]
+        gz = latest_values["gz"]
+
+        SV = sqrt(ax**2 + ay**2 + az**2)
+        Pitch = degrees(atan2(ax, sqrt(ay**2 + az**2)))
+        Roll = degrees(atan2(ay, sqrt(ax**2 + az**2)))
+        Yaw = degrees(atan2(az, sqrt(ax**2 + ay**2)))
+
+        row = [ax, ay, az, SV, gx, gy, gz, Pitch, Roll, Yaw]
         incoming_data.append(row)
 
-        print("Received data:", row)  # Optional: Debug MQTT payload
+        print("Received data:", row)
 
     except Exception as e:
         print("Error processing message:", e)
 
+
 # === MQTT SETUP ===
 def start_mqtt():
-    client = mqtt.Client(protocol=mqtt.MQTTv311)
+    client = mqtt.Client(protocol=mqtt.MQTTv311,)
     client.on_connect = on_connect
     client.on_message = on_message
-    client.connect("broker.emqx.io", 1883, 60)
+    client.username_pw_set("BBUS-6L3O4cSRsFqpUEW4e5dJNVxCyiOwJa")
+    client.connect("industrial.api.ubidots.com", 1883, 60)
     client.loop_forever()  # Keep connection alive
 
 # Start MQTT in background

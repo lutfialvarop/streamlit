@@ -1,4 +1,4 @@
-.my_env
+my_env
 .streamlit
 *.pyc
 __pycache__/
