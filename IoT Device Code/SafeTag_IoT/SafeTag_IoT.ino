@@ -12,7 +12,7 @@ const char* password = "20454418";
 // MQTT broker info
 #define MQTT_SERVER      "industrial.api.ubidots.com"
 #define MQTT_SERVERPORT  1883
-#define MQTT_USERNAME    "BBUS-6L3O4cSRsFqpUEW4e5dJNVxCyiOwJa"  // optional
+#define MQTT_USERNAME    "BBUS-DN7w3saZv6qtFnBVeKMocJTsRMmruf"  // optional
 #define MQTT_KEY         ""  // optional
 
 WiFiClient client;

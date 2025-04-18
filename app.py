@@ -70,7 +70,7 @@ def start_mqtt():
     client = mqtt.Client(protocol=mqtt.MQTTv311,)
     client.on_connect = on_connect
     client.on_message = on_message
-    client.username_pw_set("BBUS-6L3O4cSRsFqpUEW4e5dJNVxCyiOwJa")
+    client.username_pw_set("BBUS-DN7w3saZv6qtFnBVeKMocJTsRMmruf")
     client.connect("industrial.api.ubidots.com", 1883, 60)
     client.loop_forever()  # Keep connection alive
 
