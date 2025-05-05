@@ -6,20 +6,17 @@
 #include "Adafruit_MQTT_Client.h"
 
 // === WiFi & MQTT Info ===
-const char* ssid = "A1 016";
-const char* password = "20454418";
+const char* ssid = "lala";
+const char* password = "00000000";
 
-// MQTT broker info
-#define MQTT_SERVER      "industrial.api.ubidots.com"
+#define MQTT_SERVER      "broker.emqx.io"
 #define MQTT_SERVERPORT  1883
-#define MQTT_USERNAME    "BBUS-DN7w3saZv6qtFnBVeKMocJTsRMmruf"  // optional
-#define MQTT_KEY         ""  // optional
+#define MQTT_USERNAME    ""
+#define MQTT_KEY         ""
 
 WiFiClient client;
 Adafruit_MQTT_Client mqtt(&client, MQTT_SERVER, MQTT_SERVERPORT, MQTT_USERNAME, MQTT_KEY);
-
-// MQTT topic
-Adafruit_MQTT_Publish fall_data = Adafruit_MQTT_Publish(&mqtt, "/v1.6/devices/esp32-uni159");
+Adafruit_MQTT_Publish fall_data = Adafruit_MQTT_Publish(&mqtt, "fall/////");
 
 Adafruit_MPU6050 mpu;
 
@@ -73,16 +70,18 @@ void loop() {
   sensors_event_t a, g, temp;
   mpu.getEvent(&a, &g, &temp);
 
-  char payload[200];
+  char payload[200]; // Reduce payload size.
   snprintf(payload, sizeof(payload),
-           "{\"Ax\":%.2f,\"Ay\":%.2f,\"Az\":%.2f,\"Gx\":%.2f,\"Gy\":%.2f,\"Gz\":%.2f}",
+           "{\"Ax\":%.2f,\"Ay\":%.2f,\"Az\":%.2f,"
+           "\"Gx\":%.2f,\"Gy\":%.2f,\"Gz\":%.2f}",
            a.acceleration.x, a.acceleration.y, a.acceleration.z,
            g.gyro.x, g.gyro.y, g.gyro.z);
 
   Serial.println(payload);
+
   if (!fall_data.publish(payload)) {
     Serial.println("Failed to publish");
   }
 
-  delay(1000);
+  delay(10);  // Reduced delay for faster data transmission
 }
